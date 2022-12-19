@@ -1,0 +1,75 @@
+buildscript {
+    dependencies {
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.1'
+    }
+}
+
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.7.6'
+    id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+}
+
+apply plugin: 'com.google.protobuf'
+
+group = 'happl.armeria.msa'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom 'com.linecorp.armeria:armeria-bom:1.20.3'
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.21.1'
+    }
+
+    plugins {
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.48.0'
+        }
+    }
+
+    generateProtoTasks {
+        ofSourceSet('main')*.plugins {
+            grpc {}
+        }
+    }
+}
+
+dependencies {
+
+    implementation("org.springframework.boot:spring-boot-starter")
+
+    ['armeria',
+     'armeria-spring-boot2-autoconfigure',
+     'armeria-eureka',
+     'armeria-grpc'
+    ].each {
+        implementation "com.linecorp.armeria:${it}:1.20.3"
+    }
+
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs += '-parameters'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

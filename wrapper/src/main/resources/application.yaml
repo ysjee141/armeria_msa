@@ -1,0 +1,16 @@
+
+
+discovery:
+  endpoint: http://localhost:8761/eureka
+  instanceId: wrapper-service
+  hostname: grpc-wrapper
+
+spring:
+  application:
+    name: grpc-wrapper
+
+armeria:
+  ports:
+    - port: 8091
+      protocols:
+        - http
